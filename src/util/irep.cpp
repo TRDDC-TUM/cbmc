@@ -8,6 +8,7 @@ Author: Daniel Kroening, kroening@kroening.com
 
 #include <cassert>
 #include <ostream>
+#include <cstring>
 
 #include "string2int.h"
 #include "irep.h"
@@ -585,9 +586,47 @@ bool irept::operator==(const irept &other) const
     return true;
   #endif
 
-  if(id()!=other.id() ||
-     get_sub()!=other.get_sub() || // recursive call
-     get_named_sub()!=other.get_named_sub()) // recursive call
+  const bool diff_id = id() != other.id();
+  const bool diff_sub = get_sub() != other.get_sub();
+  const named_subt l = get_named_sub(); // std::map
+  const named_subt r = other.get_named_sub(); // std::map
+  const bool diff_length = l.size() != r.size();
+
+  bool different;
+#ifdef IGNORE_BOUNDS
+
+  if (diff_id || diff_sub || diff_length) {
+	  different = true;
+
+  } else {
+	  // compare namedSub while skipping "lower_bound" and "upper_bound"
+      bool diff_ns = false;
+	  for (auto lit = l.begin(); lit != l.end(); ++lit) {
+		  // some keys must be ignored, because they are only for the
+		  // "frontend" to insert checks.
+		  const char*nam = lit->first.c_str();
+		  if ((strcmp(nam, "lower_bound") == 0) || (strcmp(nam, "upper_bound") ==0)) continue;
+
+		  // others must match
+		  auto const &rit = r.find (lit->first);
+		  if (r.end() == rit) {
+			  diff_ns = true;
+			  break;
+		  }
+		  // compare second
+		  if (lit->second != rit->second) {
+			  diff_ns = true;
+			  break;
+		  }
+	  }
+	  different = diff_ns;
+  }
+#else
+  const bool diff_named_sub = l != r; // compares map key by key.
+  different = diff_id || diff_sub || diff_named_sub;
+#endif
+
+  if(different)
   {
     #ifdef IREP_HASH_STATS
     ++irep_cmp_ne_cnt;

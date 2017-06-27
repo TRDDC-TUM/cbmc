@@ -116,6 +116,9 @@ literalt boolbvt::convert_bv_rel(const exprt &expr)
         // now compare
         return bv_utils.rel(extract0, expr.id(), extract1, rep);
       }
+    } else {
+        error() << "bitvector type/size mismatch: sizes=" << bv0.size() << "/" << bv1.size()
+                << "types=" << bvtype0 << "/" << bvtype1 << eom;
     }
   }
 

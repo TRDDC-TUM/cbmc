@@ -14,6 +14,7 @@ Author: Daniel Kroening, kroening@kroening.com
 #include <cassert>
 #include <iosfwd>
 
+#define IGNORE_BOUNDS ///< for irep comparison, ignore namedSub="bounds" and its children
 #define USE_DSTRING
 #define SHARING
 // #define HASH_CODE

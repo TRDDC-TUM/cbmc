@@ -1490,15 +1490,17 @@ void goto_checkt::check_rec(
   }
   else if(expr.id()==ID_and || expr.id()==ID_or)
   {
-    if(!expr.is_boolean())
-      throw "`"+expr.id_string()+"' must be Boolean, but got "+
+    if(type.id() != ID_bool) {
+      throw "`"+expr.id_string()+"' must be Boolean, but got that: \n"+
             expr.pretty();
+    }
 
     guardt old_guard=guard;
 
     for(const auto &op : expr.operands())
     {
-      if(!op.is_boolean())
+      const auto &otype = ns.follow(op.type());
+      if(otype.id() != ID_bool)
         throw "`"+expr.id_string()+"' takes Boolean operands only, but got "+
               op.pretty();
 
