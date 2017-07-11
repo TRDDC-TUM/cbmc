@@ -10,16 +10,23 @@ Author: Chris Smowton, chris.smowton@diffblue.com
 
 #include <sstream>
 #include "json_symtab_language.h"
+#include "json_symtab_language_entry_point.h"
 #include <json/json_parser.h>
 #include <util/json_symbol_table.h>
 #include <linking/linking.h>
 
+/**
+ * @brief add declarations which are necessary to link built-ins
+ */
 void json_internal_additions(std::ostream &out)
 {
   out << "[" << '\n';
 
   // __new_array (ulong, ulong)
-  out << "{  \"base_name\": \"__new_array\",  \"is_auxiliary\": false,  \"is_exported\": false,  \"is_extern\": true,  \"is_file_local\": false,  \"is_input\": false,  \"is_lvalue\": false,  \"is_macro\": false,  \"is_output\": false,  \"is_parameter\": false,  \"is_property\": false,  \"is_state_var\": false,  \"is_static_lifetime\": false,  \"is_thread_local\": true,  \"is_type\": false,  \"is_volatile\": false,  \"is_weak\": false,  \"location\": {    \"id\": \"nil\"  },  \"mode\": \"cpp\",  \"name\": \"__new_array\",  \"pretty_name\": \"__new_array\",  \"type\": {    \"id\": \"code\",    \"namedSub\": {      \"parameters\": {        \"id\": \"parameters\",        \"sub\": [          {            \"id\": \"parameter\",            \"namedSub\": {              \"type\": {                \"id\": \"symbol\",                \"namedSub\" : { \"identifier\" : { \"id\" : \"unsigned_long\" }}              }            }          },          {            \"id\": \"parameter\",            \"namedSub\": {              \"type\": {                \"id\": \"symbol\",                \"namedSub\" : { \"identifier\" : { \"id\" : \"unsigned_long\" }}              }            }          }        ]      },      \"return_type\": {        \"id\": \"pointer\",        \"namedSub\": {          \"width\": {            \"id\": \"64\"          }        },        \"sub\": [          {            \"id\": \"empty\"          }        ]      }    }  },  \"value\": {    \"id\": \"nil\"  }   },{    \"base_name\": \"unsigned_long\",    \"is_auxiliary\": false,    \"is_exported\": false,    \"is_extern\": false,    \"is_file_local\": false,    \"is_input\": false,    \"is_lvalue\": false,    \"is_macro\": false,    \"is_output\": false,    \"is_parameter\": false,    \"is_property\": false,    \"is_state_var\": false,    \"is_static_lifetime\": false,    \"is_thread_local\": false,    \"is_type\": true,    \"is_volatile\": false,    \"is_weak\": false,    \"location\": {      \"id\": \"nil\"    },    \"mode\": \"\",    \"module\": \"\",    \"name\": \"unsigned_long\",    \"pretty_name\": \"unsigned_long\",    \"type\": {      \"id\": \"unsignedbv\",      \"namedSub\": {        \"width\": {          \"id\": \"64\"        }      },      \"sub\": []    },    \"value\": {      \"id\": \"nil\"    }  }" << '\n';
+  out << "{  \"base_name\": \"__new_array\",  \"is_auxiliary\": false,  \"is_exported\": false,  \"is_extern\": true,  \"is_file_local\": false,  \"is_input\": false,  \"is_lvalue\": false,  \"is_macro\": false,  \"is_output\": false,  \"is_parameter\": false,  \"is_property\": false,  \"is_state_var\": false,  \"is_static_lifetime\": false,  \"is_thread_local\": true,  \"is_type\": false,  \"is_volatile\": false,  \"is_weak\": false,  \"location\": {    \"id\": \"nil\"  },  \"mode\": \"cpp\",  \"name\": \"__new_array\",  \"pretty_name\": \"__new_array\",  \"type\": {    \"id\": \"code\",    \"namedSub\": {      \"parameters\": {        \"id\": \"parameters\",        \"sub\": [          {            \"id\": \"parameter\",            \"namedSub\": {              \"type\": {                \"id\": \"symbol\",                \"namedSub\" : { \"identifier\" : { \"id\" : \"unsigned_long\" }}              }            }          },          {            \"id\": \"parameter\",            \"namedSub\": {              \"type\": {                \"id\": \"symbol\",                \"namedSub\" : { \"identifier\" : { \"id\" : \"unsigned_long\" }}              }            }          }        ]      },      \"return_type\": {        \"id\": \"pointer\",        \"namedSub\": {          \"width\": {            \"id\": \"64\"          }        },        \"sub\": [          {            \"id\": \"empty\"          }        ]      }    }  },  \"value\": {    \"id\": \"nil\"  }   }," << '\n';
+
+  // unsigned long
+  out << "{    \"base_name\": \"unsigned_long\",    \"is_auxiliary\": false,    \"is_exported\": false,    \"is_extern\": false,    \"is_file_local\": false,    \"is_input\": false,    \"is_lvalue\": false,    \"is_macro\": false,    \"is_output\": false,    \"is_parameter\": false,    \"is_property\": false,    \"is_state_var\": false,    \"is_static_lifetime\": false,    \"is_thread_local\": false,    \"is_type\": true,    \"is_volatile\": false,    \"is_weak\": false,    \"location\": {      \"id\": \"nil\"    },    \"mode\": \"\",    \"module\": \"\",    \"name\": \"unsigned_long\",    \"pretty_name\": \"unsigned_long\",    \"type\": {      \"id\": \"unsignedbv\",      \"namedSub\": {        \"width\": {          \"id\": \"64\"        }      },      \"sub\": []    },    \"value\": {      \"id\": \"nil\"    }  }" << '\n';
 
   out << "]" << '\n';
   out << std::flush;
@@ -66,6 +73,13 @@ bool json_symtab_languaget::parse(
   return false;
 }
 
+
+bool json_symtab_languaget::final(symbol_tablet &symbol_table)
+{
+  if(json_symtab_language_entry_point(symbol_table, "main", get_message_handler()))
+     return true;
+  return false;
+}
 
 bool json_symtab_languaget::typecheck(
   symbol_tablet &symbol_table,

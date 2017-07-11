@@ -27,6 +27,9 @@ class json_symtab_languaget:public languaget
 
   void show_parse(std::ostream &out) override;
 
+  bool final(
+    symbol_tablet &symbol_table) override;
+
   bool to_expr(
     const std::string &code,
     const std::string &module,
